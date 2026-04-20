@@ -15,9 +15,28 @@ import FAQSection from '@/components/FAQSection'
 import ClosingSection from '@/components/ClosingSection'
 import StickyBottomNav from '@/components/StickyBottomNav'
 
+function PreviewBanner() {
+  return (
+    <div style={{
+      background: 'rgba(255,215,0,0.08)',
+      borderBottom: '1px solid rgba(255,215,0,0.2)',
+      padding: '10px 20px',
+      textAlign: 'center',
+      fontSize: '13px',
+      color: 'rgba(255,255,255,0.75)',
+      lineHeight: '1.6',
+      position: 'relative',
+      zIndex: 200,
+    }}>
+      ✦ 현재 구축 중인 <strong style={{color:'#FFD700'}}>샘플 사이트</strong>입니다 — 일부 기능이 완성되지 않았으며, 정식 오픈 전 내부 검토용으로 공유되었어요.
+    </div>
+  )
+}
+
 export default function Home() {
   return (
     <StatsProvider>
+      <PreviewBanner />
       <LiveTicker />
       <RainbowBridgeGauge />
       <CelebrationOverlay />
