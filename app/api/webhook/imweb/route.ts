@@ -1,10 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+  )
+}
 
 export async function POST(req: NextRequest) {
   let body: unknown
@@ -15,6 +17,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 페이로드 확인용 로그 (파싱 로직 완성 전)
+  const supabase = getSupabase()
   console.log('[imweb webhook]', JSON.stringify(body, null, 2))
 
   // TODO: 페이로드 확인 후 파싱 로직 추가
