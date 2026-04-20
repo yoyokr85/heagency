@@ -28,7 +28,7 @@ function PreviewBanner() {
       position: 'relative',
       zIndex: 200,
     }}>
-      ✦ 현재 구축 중인 <strong style={{color:'#FFD700'}}>샘플 사이트</strong>입니다 — 일부 기능이 완성되지 않았으며, 정식 오픈 전 내부 검토용으로 공유되었어요.
+      ✦ 현재 <strong style={{color:'#FFD700'}}>정식 오픈 전</strong> 검토 중인 사이트입니다.
     </div>
   )
 }
