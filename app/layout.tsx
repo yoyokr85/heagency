@@ -17,11 +17,11 @@ const notoSerifKR = Noto_Serif_KR({
 })
 
 export const metadata: Metadata = {
-  title: 'HE:A:GENCY™ 광고 안내 · 주식회사 인모아',
-  description: 'HE:A:GENCY 광고 자리는 주식회사 인모아가 낙찰했습니다. 전국 인테리어 매칭 플랫폼 인모아를 만나보세요. 광고 문의는 해리보 DM으로.',
+  title: 'HE:A:GENCY™ · 부산 전문직 전문 광고·마케팅 에이전시',
+  description: '촬영팀은 많지만 설득의 공식을 가진 팀은 드뭅니다. 의사·변호사·원장님을 위한 설득 마케팅 — 숏폼·유튜브·블로그 대행과 브랜드 언어 설계. HE:A:GENCY(해리보).',
   openGraph: {
-    title: 'HE:A:GENCY™ 광고 안내 · 주식회사 인모아',
-    description: '이 광고 자리는 주식회사 인모아가 낙찰했습니다. 전국 인테리어 매칭 플랫폼 인모아를 만나보세요.',
+    title: 'HE:A:GENCY™ · 부산 전문직 전문 광고·마케팅 에이전시',
+    description: '고관여 상품을 파는 설득 구조와 브랜드 언어를 설계합니다. 부산 전문직을 위한 광고 에이전시, HE:A:GENCY.',
     locale: 'ko_KR',
     type: 'website',
   },
