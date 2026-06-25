@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { SERVICE_TYPES, DOMAINS, EXPERT_ROLES } from '../../lib/taxonomy'
+import RegionPicker from './RegionPicker'
 
 type Status = 'idle' | 'sending' | 'done' | 'error'
 
@@ -50,9 +51,15 @@ export default function ApplyForm() {
   const [error, setError] = useState('')
   const [services, setServices] = useState<string[]>([])
   const [domains, setDomains] = useState<string[]>([])
+  const [regions, setRegions] = useState<string[]>([])
+  const [links, setLinks] = useState<string[]>([''])
 
   const toggle = (set: React.Dispatch<React.SetStateAction<string[]>>) => (s: string) =>
     set((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
+
+  const setLink = (i: number, v: string) => setLinks((prev) => prev.map((l, idx) => (idx === i ? v : l)))
+  const addLink = () => setLinks((prev) => (prev.length >= 8 ? prev : [...prev, '']))
+  const removeLink = (i: number) => setLinks((prev) => (prev.length <= 1 ? [''] : prev.filter((_, idx) => idx !== i)))
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -64,9 +71,8 @@ export default function ApplyForm() {
     const phone = String(data.get('phone') || '').trim()
     const email = String(data.get('email') || '').trim()
     const role = String(data.get('role') || '')
-    const region = String(data.get('region') || '').trim()
     const experience_years = String(data.get('experience_years') || '').trim()
-    const portfolio_url = String(data.get('portfolio_url') || '').trim()
+    const portfolio_urls = links.map((l) => l.trim()).filter(Boolean)
     const memo = String(data.get('memo') || '').trim()
     const agree = data.get('agree') === 'on'
     const company = String(data.get('company') || '') // honeypot
@@ -95,9 +101,9 @@ export default function ApplyForm() {
           role,
           service_types: services,
           domains,
-          region,
+          regions,
           experience_years,
-          portfolio_url,
+          portfolio_urls,
           memo,
           company,
         }),
@@ -107,6 +113,8 @@ export default function ApplyForm() {
       form.reset()
       setServices([])
       setDomains([])
+      setRegions([])
+      setLinks([''])
     } catch {
       setError('전송에 실패했어요. 잠시 후 다시 시도하거나 @haeribo__ DM으로 문의해 주세요.')
       setStatus('error')
@@ -163,20 +171,50 @@ export default function ApplyForm() {
         <Chips options={DOMAINS} value={domains} onToggle={toggle(setDomains)} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <div>
-          <label className="ag-label" htmlFor="af-region">활동 지역 (선택)</label>
-          <input id="af-region" name="region" className="ag-input" placeholder="예: 부산 해운대" />
-        </div>
-        <div>
-          <label className="ag-label" htmlFor="af-exp">경력 (년, 선택)</label>
-          <input id="af-exp" name="experience_years" className="ag-input" placeholder="예: 3" inputMode="numeric" />
-        </div>
+      <div>
+        <span className="ag-label">활동 지역 (선택, 복수 가능)</span>
+        <RegionPicker value={regions} onChange={setRegions} />
       </div>
 
       <div>
-        <label className="ag-label" htmlFor="af-portfolio">포트폴리오 링크 (선택)</label>
-        <input id="af-portfolio" name="portfolio_url" className="ag-input" placeholder="유튜브·인스타·드라이브 등 URL" inputMode="url" />
+        <label className="ag-label" htmlFor="af-exp">경력 (년, 선택)</label>
+        <input id="af-exp" name="experience_years" className="ag-input" placeholder="예: 3" inputMode="numeric" style={{ maxWidth: 160 }} />
+      </div>
+
+      <div>
+        <span className="ag-label">포트폴리오 링크 (선택, 여러 개 가능)</span>
+        <div style={{ display: 'grid', gap: 8 }}>
+          {links.map((l, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8 }}>
+              <input
+                className="ag-input"
+                value={l}
+                onChange={(e) => setLink(i, e.target.value)}
+                placeholder="유튜브·인스타·드라이브 등 URL"
+                inputMode="url"
+              />
+              {links.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeLink(i)}
+                  aria-label="링크 삭제"
+                  style={{ padding: '0 14px', background: 'var(--card)', color: 'var(--muted)', border: '1px solid var(--line)', borderRadius: 11, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          {links.length < 8 && (
+            <button
+              type="button"
+              onClick={addLink}
+              style={{ justifySelf: 'start', background: 'none', border: 'none', color: 'var(--clay)', fontWeight: 700, fontSize: 13.5, cursor: 'pointer', padding: '2px 0', fontFamily: 'inherit' }}
+            >
+              + 링크 추가
+            </button>
+          )}
+        </div>
       </div>
 
       <div>

@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle()
 
   if (!existing) {
+    const links: string[] = app.portfolio_urls ?? []
     const { error: insErr } = await supabase.from('heagency_experts').insert({
       name: app.name,
       phone: app.phone,
@@ -64,9 +65,9 @@ export async function POST(req: NextRequest) {
       role: app.role,
       service_types: app.service_types ?? [],
       domains: app.domains ?? [],
-      region: app.region,
+      regions: app.regions ?? [],
       status: 'pending', // 등록은 되되 활성화는 관리자가 별도로(평점·검토 후)
-      memo: [app.memo, app.portfolio_url ? `포트폴리오: ${app.portfolio_url}` : '', '지원서 승인 자동생성']
+      memo: [app.memo, links.length ? `포트폴리오:\n${links.join('\n')}` : '', '지원서 승인 자동생성']
         .filter(Boolean)
         .join('\n'),
       source_application_id: app.id,

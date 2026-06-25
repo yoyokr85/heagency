@@ -3,6 +3,20 @@ import { SERVICE_TYPES, DOMAINS, EXPERT_ROLES, sanitizeList } from '../../../lib
 import { supabaseAdmin } from '../../../lib/supabase'
 import { sendInfoSms } from '../../../lib/solapi'
 import { buildApplicationReceivedSms } from '../../../lib/notify'
+import { isValidRegion } from '../../../lib/regions'
+
+function cleanRegions(v: unknown): string[] {
+  if (!Array.isArray(v)) return []
+  return Array.from(new Set(v.filter((x): x is string => typeof x === 'string' && isValidRegion(x)))).slice(0, 40)
+}
+function cleanLinks(v: unknown): string[] {
+  if (!Array.isArray(v)) return []
+  return v
+    .filter((x): x is string => typeof x === 'string')
+    .map((x) => x.trim().slice(0, 300))
+    .filter((x) => /^https?:\/\//i.test(x) || (x.length > 0 && x.includes('.')))
+    .slice(0, 8)
+}
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>
@@ -22,8 +36,8 @@ export async function POST(req: NextRequest) {
   const email = str(body.email, 120)
   const roleRaw = str(body.role, 30)
   const role = (EXPERT_ROLES as readonly string[]).includes(roleRaw) ? roleRaw : ''
-  const region = str(body.region, 60)
-  const portfolio_url = str(body.portfolio_url, 300)
+  const regions = cleanRegions(body.regions)
+  const portfolio_urls = cleanLinks(body.portfolio_urls)
   const memo = str(body.memo, 2000)
   const service_types = sanitizeList(body.service_types, SERVICE_TYPES)
   const domains = sanitizeList(body.domains, DOMAINS)
@@ -44,9 +58,9 @@ export async function POST(req: NextRequest) {
     role,
     service_types,
     domains,
-    region,
+    regions,
     experience_years,
-    portfolio_url,
+    portfolio_urls,
     memo,
     consent_at: new Date().toISOString(),
   })

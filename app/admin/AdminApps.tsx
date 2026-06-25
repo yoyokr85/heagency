@@ -11,9 +11,9 @@ type App = {
   role: string | null
   service_types: string[] | null
   domains: string[] | null
-  region: string | null
+  regions: string[] | null
   experience_years: number | null
-  portfolio_url: string | null
+  portfolio_urls: string[] | null
   memo: string | null
   status: string
 }
@@ -89,14 +89,15 @@ export default function AdminApps({ apps }: { apps: App[] }) {
               서비스: {a.service_types?.join(', ') || '-'} / 도메인: {a.domains?.join(', ') || '-'}
             </div>
             <div>
-              지역: {a.region || '-'} / 경력: {a.experience_years != null ? `${a.experience_years}년` : '-'}
+              지역: {a.regions?.length ? a.regions.join(', ') : '-'} / 경력: {a.experience_years != null ? `${a.experience_years}년` : '-'}
             </div>
-            {a.portfolio_url && (
-              <div>
-                🔗{' '}
-                <a href={a.portfolio_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--clay)' }}>
-                  포트폴리오
-                </a>
+            {!!a.portfolio_urls?.length && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {a.portfolio_urls.map((u, i) => (
+                  <a key={i} href={u} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--clay)' }}>
+                    🔗 링크{a.portfolio_urls && a.portfolio_urls.length > 1 ? i + 1 : ''}
+                  </a>
+                ))}
               </div>
             )}
             {a.memo && <div style={{ whiteSpace: 'pre-wrap' }}>📝 {a.memo}</div>}
