@@ -5,6 +5,7 @@ import { AG_STYLES } from '../../lib/styles'
 import { ADMIN_COOKIE, isAuthed } from '../../lib/admin'
 import AdminLogin from './AdminLogin'
 import AdminApps from './AdminApps'
+import AdminExperts from './AdminExperts'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,14 +36,17 @@ export default async function AdminPage() {
   }
 
   const supabase = getSupabase()
-  const [{ data: leads }, { data: apps }] = await Promise.all([
+  const [{ data: leads }, { data: apps }, { data: experts }] = await Promise.all([
     supabase.from('heagency_leads').select('*').order('created_at', { ascending: false }).limit(200),
     supabase
       .from('heagency_expert_applications')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(200),
+    supabase.from('heagency_experts').select('*').order('created_at', { ascending: false }).limit(200),
   ])
+
+  const expertName = new Map<number, string>((experts ?? []).map((e) => [e.id, e.name]))
 
   return (
     <>
@@ -79,6 +83,9 @@ export default async function AdminPage() {
                   {l.message && <div style={{ whiteSpace: 'pre-wrap' }}>💬 {l.message}</div>}
                   <div style={{ color: 'var(--muted)', fontSize: 12 }}>
                     {fmt(l.created_at)} · 상태 {l.status}
+                    {l.assigned_expert_id != null && (
+                      <> · 배정 <b style={{ color: 'var(--clay)' }}>{expertName.get(l.assigned_expert_id) ?? `#${l.assigned_expert_id}`}</b></>
+                    )}
                   </div>
                 </div>
               </div>
@@ -94,6 +101,16 @@ export default async function AdminPage() {
           </h2>
           <div style={{ marginTop: 12 }}>
             <AdminApps apps={apps ?? []} />
+          </div>
+        </section>
+
+        {/* 전문가(매칭 대상) */}
+        <section style={{ marginTop: 36 }}>
+          <h2 className="ag-serif" style={{ fontSize: 18, fontWeight: 900, color: 'var(--clay)' }}>
+            전문가 ({experts?.length ?? 0})
+          </h2>
+          <div style={{ marginTop: 12 }}>
+            <AdminExperts experts={experts ?? []} />
           </div>
         </section>
       </main>

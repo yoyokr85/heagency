@@ -1,13 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { SERVICE_TYPES, DOMAINS, EXPERT_ROLES, sanitizeList } from '../../../lib/taxonomy'
-
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-  )
-}
+import { supabaseAdmin } from '../../../lib/supabase'
+import { sendInfoSms } from '../../../lib/solapi'
+import { buildApplicationReceivedSms } from '../../../lib/notify'
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>
@@ -41,7 +36,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '이름과 연락처는 필수입니다.' }, { status: 400 })
   }
 
-  const supabase = getSupabase()
+  const supabase = supabaseAdmin()
   const { error } = await supabase.from('heagency_expert_applications').insert({
     name,
     phone,
@@ -60,6 +55,9 @@ export async function POST(req: NextRequest) {
     console.error('[apply insert]', error.message)
     return NextResponse.json({ error: 'db error' }, { status: 500 })
   }
+
+  // 지원 접수 안내 SMS (실패해도 접수는 유지)
+  sendInfoSms(phone, buildApplicationReceivedSms(name)).catch(() => {})
 
   return NextResponse.json({ ok: true })
 }

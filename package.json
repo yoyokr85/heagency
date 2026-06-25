@@ -10,11 +10,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.106.0",
+    "@google/genai": "^2.10.0",
     "@supabase/supabase-js": "^2.49.1",
     "next": "^14.2.0",
     "pg": "^8.22.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "solapi": "^6.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",

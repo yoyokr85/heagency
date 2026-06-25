@@ -1,23 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-export type Registration = {
-  id: string
-  name: string
-  city: string
-  type: 'kid' | 'company'
-  created_at: string
-  is_new?: boolean
-}
-
-export type EditorLog = {
-  id: string
-  category: string
-  content: string
-  status: 'done' | 'open' | 'missed'
-  created_at: string
+// 서버 전용 admin 클라이언트 (SERVICE_ROLE_KEY → RLS 우회). API 라우트/서버에서만 사용.
+export function supabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key',
+    { auth: { persistSession: false } }
+  )
 }

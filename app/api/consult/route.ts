@@ -1,13 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { SERVICE_TYPES, sanitizeList } from '../../../lib/taxonomy'
-
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-  )
-}
+import { supabaseAdmin } from '../../../lib/supabase'
+import { pickExpert } from '../../../lib/match'
+import { sendInfoSms, isQuietHoursKst } from '../../../lib/solapi'
+import { buildLeadReceivedSms, buildLeadAssignedSms, leadCtx } from '../../../lib/notify'
+import { SITE_URL } from '../../../lib/site'
 
 function clientIp(req: NextRequest) {
   const xff = req.headers.get('x-forwarded-for')
@@ -44,22 +41,54 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '이름과 연락처는 필수입니다.' }, { status: 400 })
   }
 
-  const supabase = getSupabase()
-  const { error } = await supabase.from('heagency_leads').insert({
-    name,
-    phone,
-    domain,
-    service_types,
-    budget,
-    message,
-    consent_at: new Date().toISOString(),
-    ip: clientIp(req),
-  })
+  const supabase = supabaseAdmin()
+  const { data: lead, error } = await supabase
+    .from('heagency_leads')
+    .insert({
+      name,
+      phone,
+      domain,
+      service_types,
+      budget,
+      message,
+      consent_at: new Date().toISOString(),
+      ip: clientIp(req),
+    })
+    .select('id, chat_token')
+    .single()
 
-  if (error) {
-    console.error('[lead insert]', error.message)
+  if (error || !lead) {
+    console.error('[lead insert]', error?.message)
     return NextResponse.json({ error: 'db error' }, { status: 500 })
   }
+
+  // 자동 직배정 — 적합 전문가 1명. 실패해도 리드는 보존(미배정 상태로 남음).
+  const ctx = leadCtx(domain, service_types)
+  try {
+    const expert = await pickExpert({ domain, service_types })
+    if (expert) {
+      await supabase
+        .from('heagency_leads')
+        .update({ status: 'assigned', assigned_expert_id: expert.id })
+        .eq('id', lead.id)
+      // 배정 전문가 알림 SMS (야간 보류) — 전문가 개인 포털 링크
+      if (expert.phone && !isQuietHoursKst()) {
+        const portalUrl = expert.portal_token
+          ? `${SITE_URL}/portal/${expert.portal_token}`
+          : `${SITE_URL}/portal`
+        sendInfoSms(expert.phone, buildLeadAssignedSms(name, ctx, portalUrl)).catch(() => {})
+      }
+    }
+  } catch (e) {
+    console.error('[lead assign]', e instanceof Error ? e.message : e)
+  }
+
+  // 광고주 접수 SMS + AI 상담 링크
+  const chatLink = `${SITE_URL}/c/${lead.chat_token}`
+  const notify = await sendInfoSms(phone, buildLeadReceivedSms(name, ctx, chatLink)).catch(
+    () => 'failed' as const
+  )
+  await supabase.from('heagency_leads').update({ notify_status: notify }).eq('id', lead.id)
 
   return NextResponse.json({ ok: true })
 }
