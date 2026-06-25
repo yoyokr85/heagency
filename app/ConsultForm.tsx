@@ -1,20 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-
-const CATEGORIES = [
-  '의사 · 병원',
-  '변호사 · 법률',
-  '피트니스 · 헬스',
-  '기타 자영업 · 중소기업',
-  '편집자 · PD 합류',
-]
+import { SERVICE_TYPES, DOMAINS, BUDGET_TIERS } from '../lib/taxonomy'
 
 type Status = 'idle' | 'sending' | 'done' | 'error'
 
 export default function ConsultForm() {
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
+  const [services, setServices] = useState<string[]>([])
+
+  function toggleService(s: string) {
+    setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -24,7 +22,8 @@ export default function ConsultForm() {
 
     const name = String(data.get('name') || '').trim()
     const phone = String(data.get('phone') || '').trim()
-    const category = String(data.get('category') || '')
+    const domain = String(data.get('domain') || '')
+    const budget = String(data.get('budget') || '')
     const message = String(data.get('message') || '').trim()
     const agree = data.get('agree') === 'on'
     const company = String(data.get('company') || '') // honeypot
@@ -46,11 +45,12 @@ export default function ConsultForm() {
       const res = await fetch('/api/consult', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, category, message, company }),
+        body: JSON.stringify({ name, phone, domain, service_types: services, budget, message, company }),
       })
       if (!res.ok) throw new Error('failed')
       setStatus('done')
       form.reset()
+      setServices([])
     } catch {
       setError('전송에 실패했어요. 잠시 후 다시 시도하거나 @haeribo__ DM으로 문의해 주세요.')
       setStatus('error')
@@ -62,10 +62,10 @@ export default function ConsultForm() {
       <div style={{ textAlign: 'center', padding: '20px 6px' }}>
         <div style={{ fontSize: 36 }}>✓</div>
         <h3 className="ag-serif" style={{ fontSize: 21, fontWeight: 900, margin: '10px 0 0', color: 'var(--espresso)' }}>
-          신청이 접수됐어요.
+          상담 신청이 접수됐어요.
         </h3>
         <p style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: '10px 0 0' }}>
-          영업일 기준 1일 내로 연락드리겠습니다. 감사합니다.
+          영업일 기준 1일 내로 담당자가 연락드리겠습니다. 감사합니다.
         </p>
       </div>
     )
@@ -91,10 +91,49 @@ export default function ConsultForm() {
       </div>
 
       <div>
-        <label className="ag-label" htmlFor="cf-category">문의 유형</label>
-        <select id="cf-category" name="category" className="ag-select" defaultValue={CATEGORIES[0]}>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
+        <label className="ag-label" htmlFor="cf-domain">업종</label>
+        <select id="cf-domain" name="domain" className="ag-select" defaultValue={DOMAINS[0]}>
+          {DOMAINS.map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <span className="ag-label">필요한 서비스 (복수 선택)</span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {SERVICE_TYPES.map((s) => {
+            const on = services.includes(s)
+            return (
+              <button
+                type="button"
+                key={s}
+                onClick={() => toggleService(s)}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: 999,
+                  border: `1px solid ${on ? 'var(--clay)' : 'var(--line)'}`,
+                  background: on ? 'var(--clay)' : 'var(--card)',
+                  color: on ? '#fff' : 'var(--ink-soft)',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'all .15s ease',
+                }}
+              >
+                {on ? '✓ ' : ''}{s}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div>
+        <label className="ag-label" htmlFor="cf-budget">예상 예산 (선택)</label>
+        <select id="cf-budget" name="budget" className="ag-select" defaultValue={BUDGET_TIERS[0]}>
+          {BUDGET_TIERS.map((b) => (
+            <option key={b} value={b}>{b}</option>
           ))}
         </select>
       </div>

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { SERVICE_TYPES, sanitizeList } from '../../../lib/taxonomy'
 
 function getSupabase() {
   return createClient(
@@ -8,11 +9,18 @@ function getSupabase() {
   )
 }
 
+function clientIp(req: NextRequest) {
+  const xff = req.headers.get('x-forwarded-for')
+  return (xff ? xff.split(',')[0] : '').trim() || null
+}
+
 export async function POST(req: NextRequest) {
   let body: {
     name?: string
     phone?: string
-    category?: string
+    domain?: string
+    service_types?: unknown
+    budget?: string
     message?: string
     company?: string
   }
@@ -27,23 +35,29 @@ export async function POST(req: NextRequest) {
 
   const name = (body.name || '').trim().slice(0, 80)
   const phone = (body.phone || '').trim().slice(0, 40)
-  const category = (body.category || '').trim().slice(0, 60)
+  const domain = (body.domain || '').trim().slice(0, 60)
+  const budget = (body.budget || '').trim().slice(0, 60)
   const message = (body.message || '').trim().slice(0, 2000)
+  const service_types = sanitizeList(body.service_types, SERVICE_TYPES)
 
   if (!name || !phone) {
     return NextResponse.json({ error: '이름과 연락처는 필수입니다.' }, { status: 400 })
   }
 
   const supabase = getSupabase()
-  const { error } = await supabase.from('consults').insert({
+  const { error } = await supabase.from('heagency_leads').insert({
     name,
     phone,
-    category,
+    domain,
+    service_types,
+    budget,
     message,
+    consent_at: new Date().toISOString(),
+    ip: clientIp(req),
   })
 
   if (error) {
-    console.error('[consult insert]', error.message)
+    console.error('[lead insert]', error.message)
     return NextResponse.json({ error: 'db error' }, { status: 500 })
   }
 

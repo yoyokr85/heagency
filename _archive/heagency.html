@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>HE:AGENCY · 해이전시 의뢰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #fff;
+    background: #0c0c30;
+    min-height: 100vh;
+  }
+  .page {
+    background: linear-gradient(175deg, #0c0c30 0%, #1a0e42 35%, #2a1860 65%, #0c0c30 100%);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    overflow-x: hidden;
+  }
+
+  /* animations */
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+  @keyframes glow { 0%,100%{text-shadow:0 0 8px rgba(255,215,0,.5)} 50%{text-shadow:0 0 18px rgba(255,215,0,1)} }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes burstExpand { 0%{transform:scale(0);opacity:1} 100%{transform:scale(2.5);opacity:0} }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes fadeSlideIn { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+
+  /* reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* HERO */
+  .hero { display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:56px; padding-bottom:20px; gap:12px; }
+  .hero-badge {
+    position: relative; width:88px; height:88px; border-radius:50%;
+    background: radial-gradient(circle, rgba(255,215,0,.12) 0%, transparent 70%);
+    border: 2px solid rgba(255,215,0,.2);
+    display:flex; align-items:center; justify-content:center;
+    animation: pulse 3s ease-in-out infinite;
+    font-size: 48px;
+  }
+  .horn { position:absolute; top:-2px; right:14px; font-size:18px; color:#FFD700; animation: glow 2s ease-in-out infinite; }
+  .hero-title {
+    font-family: 'Outfit', sans-serif; font-size:40px; font-weight:900;
+    background: linear-gradient(135deg,#FFD700,#FF6B9D,#C084FC);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin:0; letter-spacing:-1px;
+  }
+  .hero-sub { color: rgba(255,255,255,.45); font-size:15px; font-weight:700; letter-spacing:6px; margin:0; }
+  .hero-bubble { background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:20px; padding:20px 24px; margin-top:4px; }
+  .hero-msg { font-size:20px; font-weight:900; margin:0; line-height:1.5; }
+  .hero-msg-accent { font-size:17px; font-weight:700; color:#C084FC; margin:6px 0 0; }
+  .scroll-hint { color: rgba(255,255,255,.25); font-size:13px; margin-top:8px; animation: bounce 2s ease-in-out infinite; }
+
+  /* divider */
+  .divider { height:1px; background: linear-gradient(90deg, transparent, rgba(192,132,252,.18), transparent); margin:28px 0; }
+
+  /* sections */
+  .section { display:flex; flex-direction:column; gap:14px; }
+  .section-head { display:flex; align-items:center; gap:12px; }
+  .badge {
+    width:50px; height:50px; border-radius:14px;
+    background: linear-gradient(135deg, rgba(255,215,0,.1), rgba(192,132,252,.1));
+    border: 1px solid rgba(255,215,0,.15);
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px; flex-shrink:0;
+  }
+  .badge-label { color:#FFD700; font-size:11px; font-weight:700; letter-spacing:1px; margin:0; text-transform:uppercase; }
+  .section-title { color:#fff; font-size:21px; font-weight:900; margin:3px 0 0; line-height:1.3; }
+  .section-desc { color: rgba(255,255,255,.45); font-size:13px; margin:0; line-height:1.6; }
+
+  textarea, input[type=text] {
+    width:100%;
+    background: rgba(255,255,255,.05);
+    border: 1.5px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 14px;
+    color:#fff; font-size:15px;
+    font-family: 'Noto Sans KR', sans-serif;
+    outline: none;
+    transition: border-color .3s;
+  }
+  textarea { resize:none; line-height:1.6; }
+  input[type=text]:focus, textarea:focus { border-color: rgba(192,132,252,.5); }
+
+  .chip-row { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip {
+    background: rgba(192,132,252,.1);
+    border: 1px solid rgba(192,132,252,.18);
+    border-radius: 20px;
+    padding: 5px 13px;
+    color:#C084FC; font-size:12px; font-weight:600;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor:pointer;
+  }
+  .chip:active { transform: scale(.95); }
+
+  .idea-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; }
+  .idea-card {
+    position:relative;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background: rgba(255,255,255,.03);
+    border: 1.5px solid rgba(255,255,255,.07);
+    border-radius:14px;
+    padding: 14px 6px;
+    cursor:pointer; transition: all .2s;
+    font-family: 'Noto Sans KR', sans-serif;
+    color:#fff;
+  }
+  .idea-card .emoji { font-size:26px; }
+  .idea-card .text { font-size:11px; font-weight:700; text-align:center; }
+  .idea-card.selected {
+    background: rgba(192,132,252,.12);
+    border-color: #C084FC;
+    box-shadow: 0 0 16px rgba(192,132,252,.12);
+  }
+  .idea-card .check { position:absolute; top:5px; right:7px; color:#C084FC; font-weight:900; font-size:13px; display:none; }
+  .idea-card.selected .check { display:inline; }
+
+  .field-group { display:flex; flex-direction:column; gap:5px; }
+  .label { color: rgba(255,255,255,.4); font-size:12px; font-weight:700; }
+
+  .consent-btn {
+    display:flex; align-items:center; gap:12px;
+    background: rgba(255,255,255,.03);
+    border: 1.5px solid rgba(255,255,255,.08);
+    border-radius:14px;
+    padding: 13px 16px;
+    cursor:pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    text-align:left; transition: all .2s; width:100%;
+  }
+  .consent-btn.on { background: rgba(255,215,0,.06); border-color: rgba(255,215,0,.25); }
+  .cbox {
+    width:22px; height:22px; border-radius:7px;
+    border:2px solid rgba(255,255,255,.15);
+    display:flex; align-items:center; justify-content:center;
+    color:#FFD700; font-weight:900; font-size:13px;
+    flex-shrink:0; transition: all .2s;
+  }
+  .consent-btn.on .cbox { background: rgba(255,215,0,.12); border-color:#FFD700; }
+  .consent-text { color: rgba(255,255,255,.65); font-size:13px; font-weight:600; }
+
+  .submit-btn {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+    background: linear-gradient(135deg,#FFD700,#FF6B9D);
+    color:#1a0a3e;
+    border:none; border-radius:16px;
+    padding: 16px 0;
+    font-size:19px; font-weight:900;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor:pointer;
+    box-shadow: 0 4px 24px rgba(255,107,157,.2);
+    transition: opacity .3s;
+    opacity: .35;
+  }
+  .submit-btn.ready { opacity: 1; }
+  .submit-btn:active { transform: scale(.98); }
+  .missing-hint { color: rgba(255,150,150,.6); font-size:12px; text-align:center; margin:0; }
+
+  /* complete */
+  .complete {
+    display:none;
+    flex-direction:column; align-items:center; text-align:center; gap:18px;
+    padding: 60px 0;
+    animation: fadeSlideIn .7s ease;
+  }
+  .complete.show { display:flex; }
+  .burst-wrap { position:relative; width:90px; height:90px; display:flex; align-items:center; justify-content:center; }
+  .burst-ring {
+    position:absolute; width:90px; height:90px; border-radius:50%;
+    border:3px solid rgba(255,215,0,.35);
+    animation: burstExpand 2s ease-out infinite;
+  }
+  .complete-title { font-size:28px; font-weight:900; margin:0; }
+  .complete-subtitle { font-size:15px; color:#FFD700; font-weight:700; margin:0; }
+  .agent-row { display:flex; gap:20px; justify-content:center; }
+  .agent-mini { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .agent-mini-name { color: rgba(255,255,255,.4); font-size:10px; font-weight:700; }
+  .request-card {
+    width:100%;
+    background: rgba(0,0,0,.25);
+    border-radius:16px; padding:18px;
+    border:1px solid rgba(255,255,255,.06);
+    text-align:left;
+  }
+  .request-header {
+    display:flex; align-items:center; gap:8px;
+    color: rgba(255,255,255,.25); font-size:10px;
+    font-family: 'Outfit', monospace; font-weight:700; letter-spacing:2px;
+    margin-bottom:10px;
+  }
+  .dot { width:7px; height:7px; border-radius:50%; background:#4ade80; animation: blink 1.5s infinite; flex-shrink:0; }
+  .req-name { font-size:16px; font-weight:700; margin:0 0 2px; }
+  .req-problem { font-size:14px; color: rgba(255,255,255,.5); font-style:italic; margin:0 0 6px; }
+  .req-dream { font-size:13px; color: rgba(192,132,252,.7); margin:0 0 4px; }
+  .req-ideas { font-size:12px; color: rgba(255,215,0,.5); margin:0; }
+  .quote-bottom { color: rgba(255,255,255,.2); font-size:13px; font-style:italic; }
+  .restart-btn {
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;
+    padding: 12px 28px;
+    color: rgba(255,255,255,.5);
+    font-size:14px; font-weight:700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <!-- HERO -->
+  <div class="hero reveal" data-reveal>
+    <div class="hero-badge">
+      🐹
+      <span class="horn">✦</span>
+    </div>
+    <h1 class="hero-title">HE:AGENCY</h1>
+    <p class="hero-sub">해이전시</p>
+    <div class="hero-bubble">
+      <p class="hero-msg">세상에서 바꾸고 싶은 게 있어?</p>
+      <p class="hero-msg-accent">해이전시에 의뢰해!</p>
+    </div>
+    <p class="scroll-hint">↓ 아래로 스크롤해서 의뢰하기</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 1: PROBLEM -->
+  <div class="section reveal" data-reveal>
+    <div class="section-head">
+      <div class="badge">🔎</div>
+      <div>
+        <p class="badge-label">STEP 1 · 디텍꽁</p>
+        <h2 class="section-title">어떤 문제가 있어?</h2>
+      </div>
+    </div>
+    <p class="section-desc">세상에서 이상하다고 느낀 것, 불편한 것, 바꾸고 싶은 것을 알려줘!</p>
+    <textarea id="problem" rows="3" placeholder="예: 아이들이 학교에서 돈에 대해 배우지 않아요..."></textarea>
+    <div class="chip-row" id="chips">
+      <button class="chip" data-chip="학교 문제">학교 문제</button>
+      <button class="chip" data-chip="환경 문제">환경 문제</button>
+      <button class="chip" data-chip="친구 문제">친구 문제</button>
+      <button class="chip" data-chip="경제 문제">경제 문제</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 2: DREAM -->
+  <div class="section reveal" data-reveal>
+    <div class="section-head">
+      <div class="badge">💫</div>
+      <div>
+        <p class="badge-label">STEP 2 · 꿈</p>
+        <h2 class="section-title">어떤 세상을 만들고 싶어?</h2>
+      </div>
+    </div>
+    <p class="section-desc">네가 꿈꾸는 세상은 어떤 모습이야?</p>
+    <textarea id="dream" rows="3" placeholder="예: 모든 아이들이 돈과 사업을 배우는 세상..."></textarea>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 3: IDEA -->
+  <div class="section reveal" data-reveal>
+    <div class="section-head">
+      <div class="badge">💡</div>
+      <div>
+        <p class="badge-label">STEP 3 · 바이럴꽁 & 링크꽁</p>
+        <h2 class="section-title">어떤 방법이 있을까?</h2>
+      </div>
+    </div>
+    <p class="section-desc">문제를 해결할 방법을 골라봐! (여러 개 가능)</p>
+    <div class="idea-grid" id="ideaGrid">
+      <button class="idea-card" data-idea="영상 만들기"><span class="emoji">🎬</span><span class="text">영상 만들기</span><span class="check">✓</span></button>
+      <button class="idea-card" data-idea="서비스 만들기"><span class="emoji">🏪</span><span class="text">서비스 만들기</span><span class="check">✓</span></button>
+      <button class="idea-card" data-idea="브랜드 만들기"><span class="emoji">✨</span><span class="text">브랜드 만들기</span><span class="check">✓</span></button>
+      <button class="idea-card" data-idea="앱 만들기"><span class="emoji">📱</span><span class="text">앱 만들기</span><span class="check">✓</span></button>
+      <button class="idea-card" data-idea="책 만들기"><span class="emoji">📖</span><span class="text">책 만들기</span><span class="check">✓</span></button>
+      <button class="idea-card" data-idea="AI 활용하기"><span class="emoji">🤖</span><span class="text">AI 활용하기</span><span class="check">✓</span></button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 4: INFO -->
+  <div class="section reveal" data-reveal>
+    <div class="section-head">
+      <div class="badge">🌟</div>
+      <div>
+        <p class="badge-label">STEP 4 · 주인공</p>
+        <h2 class="section-title">너에 대해 알려줘</h2>
+      </div>
+    </div>
+    <div class="field-group"><label class="label">이름</label><input type="text" id="name" placeholder="이름"></div>
+    <div class="field-group"><label class="label">나이</label><input type="text" id="age" placeholder="예: 10살"></div>
+    <div class="field-group"><label class="label">나의 꿈 (선택)</label><input type="text" id="dreamJob" placeholder="예: 유니콘 기업가!"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 5: CONSENT -->
+  <div class="section reveal" data-reveal>
+    <div class="section-head">
+      <div class="badge">📋</div>
+      <div>
+        <p class="badge-label">STEP 5 · 마지막!</p>
+        <h2 class="section-title">의뢰 확인</h2>
+      </div>
+    </div>
+    <button class="consent-btn" id="consentBtn">
+      <span class="cbox" id="cbox"></span>
+      <span class="consent-text">내 이야기가 콘텐츠로 만들어지는 것에 동의해요!</span>
+    </button>
+    <button class="submit-btn" id="submitBtn">⚡ 의뢰 접수!</button>
+    <p class="missing-hint" id="missingHint"></p>
+  </div>
+
+  <!-- COMPLETE -->
+  <div class="complete" id="complete">
+    <div class="burst-wrap">
+      <div class="burst-ring"></div>
+      <span style="font-size:56px; position:relative; z-index:2;">🦄</span>
+    </div>
+    <h1 class="complete-title">의뢰 접수 완료!</h1>
+    <p class="complete-subtitle">해이전시 요원들이 출동합니다!</p>
+    <div class="agent-row">
+      <div class="agent-mini"><span style="font-size:28px">🔎</span><span class="agent-mini-name">디텍꽁</span></div>
+      <div class="agent-mini"><span style="font-size:28px">📹</span><span class="agent-mini-name">바이럴꽁</span></div>
+      <div class="agent-mini"><span style="font-size:28px">🔗</span><span class="agent-mini-name">링크꽁</span></div>
+      <div class="agent-mini"><span style="font-size:28px">⚡</span><span class="agent-mini-name">액션꽁</span></div>
+    </div>
+    <div class="request-card">
+      <div class="request-header"><span class="dot"></span>NEW REQUEST</div>
+      <p class="req-name" id="rName"></p>
+      <p class="req-problem" id="rProblem"></p>
+      <p class="req-dream" id="rDream"></p>
+      <p class="req-ideas" id="rIdeas"></p>
+    </div>
+    <p class="quote-bottom">"해이전시를 가지면 세상을 가질 수 있어!" — 유니꽁</p>
+    <button class="restart-btn" id="restartBtn">새로운 의뢰하기</button>
+  </div>
+
+</div>
+
+<script>
+  // reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+
+  // state
+  const state = { problem:'', dream:'', ideas:[], name:'', age:'', dreamJob:'', consent:false };
+
+  // inputs
+  const problemEl = document.getElementById('problem');
+  const dreamEl = document.getElementById('dream');
+  const nameEl = document.getElementById('name');
+  const ageEl = document.getElementById('age');
+  const dreamJobEl = document.getElementById('dreamJob');
+  problemEl.addEventListener('input', e => { state.problem = e.target.value; updateSubmit(); });
+  dreamEl.addEventListener('input', e => { state.dream = e.target.value; updateSubmit(); });
+  nameEl.addEventListener('input', e => { state.name = e.target.value; updateSubmit(); });
+  ageEl.addEventListener('input', e => { state.age = e.target.value; updateSubmit(); });
+  dreamJobEl.addEventListener('input', e => { state.dreamJob = e.target.value; });
+
+  // chips
+  document.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.chip;
+      problemEl.value = problemEl.value ? (problemEl.value + ' ' + t) : t;
+      state.problem = problemEl.value;
+      updateSubmit();
+    });
+  });
+
+  // ideas
+  document.querySelectorAll('.idea-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const idea = card.dataset.idea;
+      const i = state.ideas.indexOf(idea);
+      if (i > -1) { state.ideas.splice(i, 1); card.classList.remove('selected'); }
+      else { state.ideas.push(idea); card.classList.add('selected'); }
+      updateSubmit();
+    });
+  });
+
+  // consent
+  const consentBtn = document.getElementById('consentBtn');
+  consentBtn.addEventListener('click', () => {
+    state.consent = !state.consent;
+    consentBtn.classList.toggle('on', state.consent);
+    document.getElementById('cbox').textContent = state.consent ? '✓' : '';
+    updateSubmit();
+  });
+
+  // submit validation
+  const submitBtn = document.getElementById('submitBtn');
+  const missingHint = document.getElementById('missingHint');
+  function canSubmit() {
+    return state.problem.length > 2 && state.dream.length > 2 && state.ideas.length > 0 &&
+           state.name && state.age && state.consent;
+  }
+  function updateSubmit() {
+    const ok = canSubmit();
+    submitBtn.classList.toggle('ready', ok);
+    if (ok) { missingHint.textContent = ''; return; }
+    const missing = [];
+    if (state.problem.length <= 2) missing.push('문제');
+    if (state.dream.length <= 2) missing.push('꿈');
+    if (state.ideas.length === 0) missing.push('방법');
+    if (!state.name) missing.push('이름');
+    if (!state.age) missing.push('나이');
+    if (!state.consent) missing.push('동의');
+    missingHint.textContent = missing.join(', ') + ' 항목을 채워줘!';
+  }
+
+  // submit
+  submitBtn.addEventListener('click', () => {
+    if (!canSubmit()) return;
+    document.getElementById('rName').textContent = state.name + ' (' + state.age + ')';
+    document.getElementById('rProblem').textContent = '"' + state.problem + '"';
+    document.getElementById('rDream').textContent = '꿈: ' + state.dream;
+    document.getElementById('rIdeas').textContent = state.ideas.join(' · ');
+    // hide form sections
+    document.querySelectorAll('.hero, .section, .divider').forEach(el => el.style.display = 'none');
+    document.getElementById('complete').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // restart
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    Object.assign(state, { problem:'', dream:'', ideas:[], name:'', age:'', dreamJob:'', consent:false });
+    problemEl.value=''; dreamEl.value=''; nameEl.value=''; ageEl.value=''; dreamJobEl.value='';
+    document.querySelectorAll('.idea-card.selected').forEach(c => c.classList.remove('selected'));
+    consentBtn.classList.remove('on');
+    document.getElementById('cbox').textContent = '';
+    document.getElementById('complete').classList.remove('show');
+    document.querySelectorAll('.hero, .section, .divider').forEach(el => el.style.display = '');
+    updateSubmit();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  updateSubmit();
+</script>
+</body>
+</html>
