@@ -54,16 +54,16 @@ export default function ApplyPage() {
               background: 'var(--card)',
             }}
           >
-            ● PD · 편집자 · 마케터 상시 모집
+            ● 편집자들의 놀이터 · 상시 모집
           </span>
           <h1 className="ag-serif" style={{ fontSize: 32, fontWeight: 900, lineHeight: 1.36, margin: '24px 0 0' }}>
-            전문직 광고를
+            팔로워 없어도
             <br />
-            <span style={{ color: 'var(--clay)' }}>함께 만들</span> 분을 찾습니다.
+            <span style={{ color: 'var(--clay)' }}>광고로 수익</span> 내요.
           </h1>
           <p style={{ fontSize: 15.5, color: 'var(--ink-soft)', margin: '20px auto 0', maxWidth: 480 }}>
-            HE:A:GENCY는 부산 전문직(의사·변호사·원장님) 광고를 만드는 팀입니다. 촬영·편집·블로그·마케팅
-            역량이 있는 분이라면 지원해 주세요. 포트폴리오 검토 후 과제·협업으로 이어집니다.
+            HE:A:GENCY는 교육에 그치지 않고 <strong style={{ color: 'var(--ink)' }}>실제 광고주를 물어다</strong> 줍니다.
+            팔로워·경력 무관, 누구나 지원하세요. 포트폴리오를 함께 쌓고(구축 단계 건당 1만원) 광고 매칭 시 건별로 정산받습니다.
           </p>
         </section>
 
