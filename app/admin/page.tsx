@@ -6,6 +6,8 @@ import { ADMIN_COOKIE, isAuthed } from '../../lib/admin'
 import AdminLogin from './AdminLogin'
 import AdminApps from './AdminApps'
 import AdminExperts from './AdminExperts'
+import AdminAiModel from './AdminAiModel'
+import { resolvedChatModel } from '../../lib/ai'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,6 +49,7 @@ export default async function AdminPage() {
   ])
 
   const expertName = new Map<number, string>((experts ?? []).map((e) => [e.id, e.name]))
+  const aiModel = await resolvedChatModel()
 
   return (
     <>
@@ -111,6 +114,16 @@ export default async function AdminPage() {
           </h2>
           <div style={{ marginTop: 12 }}>
             <AdminExperts experts={experts ?? []} />
+          </div>
+        </section>
+
+        {/* AI 상담 모델 */}
+        <section style={{ marginTop: 36 }}>
+          <h2 className="ag-serif" style={{ fontSize: 18, fontWeight: 900, color: 'var(--clay)' }}>
+            AI 상담 모델
+          </h2>
+          <div style={{ marginTop: 12 }}>
+            <AdminAiModel current={aiModel.model} source={aiModel.source} />
           </div>
         </section>
       </main>
