@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '../../../lib/supabase'
 import { AG_STYLES } from '../../../lib/styles'
+import { aiComplete } from '../../../lib/ai'
+import { buildConsultSystem } from '../../../lib/consult'
 import ChatClient from './ChatClient'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +21,7 @@ export default async function ConsultChatPage({ params }: { params: Promise<{ to
   const sb = supabaseAdmin()
   const { data: lead } = await sb
     .from('heagency_leads')
-    .select('id, name')
+    .select('id, name, domain, service_types, budget, message')
     .eq('chat_token', token)
     .single()
   if (!lead) notFound()
@@ -31,15 +33,40 @@ export default async function ConsultChatPage({ params }: { params: Promise<{ to
     .order('created_at', { ascending: true })
     .limit(40)
 
-  const initial = (history ?? []).map((m) => ({
+  let initial = (history ?? []).map((m) => ({
     role: m.role as 'user' | 'assistant',
     content: m.content,
   }))
+
+  // 첫 진입: 문의 내용을 반영해 AI 첫 응답 생성 후 저장(새로고침해도 유지).
   if (!initial.length) {
-    initial.push({
-      role: 'assistant',
-      content: `${lead.name}님, 안녕하세요! HE:A:GENCY 상담사예요. 어떤 점이 가장 고민이신지 편하게 말씀해 주세요. 현재 마케팅을 해보신 적이 있으신가요?`,
-    })
+    if (lead.message) {
+      let reply: string
+      try {
+        reply = await aiComplete({
+          system: buildConsultSystem(lead),
+          messages: [{ role: 'user', content: lead.message }],
+          maxTokens: 700,
+        })
+      } catch {
+        reply = `${lead.name}님, 남겨주신 문의 잘 봤어요! 바로 도와드릴게요. 현재 마케팅을 해보신 적이 있으신가요?`
+      }
+      await sb.from('heagency_messages').insert([
+        { lead_id: lead.id, role: 'user', content: lead.message },
+        { lead_id: lead.id, role: 'assistant', content: reply },
+      ])
+      initial = [
+        { role: 'user', content: lead.message },
+        { role: 'assistant', content: reply },
+      ]
+    } else {
+      initial = [
+        {
+          role: 'assistant',
+          content: `${lead.name}님, 안녕하세요! HE:A:GENCY 상담사예요. 어떤 점이 가장 고민이신지 편하게 말씀해 주세요. 현재 마케팅을 해보신 적이 있으신가요?`,
+        },
+      ]
+    }
   }
 
   return (
