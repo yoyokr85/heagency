@@ -11,13 +11,13 @@ const sectionTag: CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing
 const PROOF = [
   { n: '3,300만원', l: '차량광고 수주' },
   { n: '380만+', l: '영상 조회수' },
-  { n: '만 1년', l: '온이의 사업 여정' },
+  { n: '만 1년', l: '해리보의 사업 여정' },
 ]
 
 const EDGES = [
   {
-    t: '교육이 아니라 "광고를 물어다" 줍니다',
-    d: '강의만 듣고 끝나는 곳과 다릅니다. 온이의 검증된 광고 유치력으로 실제 광고주를 연결해 수익으로 잇습니다.',
+    t: '"광고를 물어다" 줍니다',
+    d: '포트폴리오만 쌓다 끝나지 않습니다. 해리보의 검증된 광고 유치력으로 실제 광고주를 연결해 수익으로 잇습니다.',
   },
   {
     t: '문턱 낮은 "편집자들의 놀이터"',
@@ -75,7 +75,7 @@ export default function Home() {
 
           <p style={{ fontSize: 16, color: 'var(--ink-soft)', margin: '24px auto 0', maxWidth: 480 }}>
             수익화가 막막한 크리에이터·편집자를 위한 <strong style={{ color: 'var(--ink)' }}>HE:A:GENCY</strong>.
-            교육에 그치지 않고, 실제 광고주를 연결해 <strong style={{ color: 'var(--ink)' }}>수익</strong>까지 만듭니다.
+            실제 광고주를 연결해 <strong style={{ color: 'var(--ink)' }}>수익</strong>까지 만드는 에이전시예요.
           </p>
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginTop: 30 }}>
@@ -88,9 +88,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 온이 PROOF */}
+        {/* 해리보 PROOF */}
         <section style={{ marginTop: 56 }}>
-          <p style={{ ...sectionTag, textAlign: 'center', marginBottom: 14 }}>온이가 증명한 광고 유치력</p>
+          <p style={{ ...sectionTag, textAlign: 'center', marginBottom: 14 }}>해리보가 증명한 광고 유치력</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--line)', border: '1px solid var(--line)', borderRadius: 16, overflow: 'hidden' }}>
             {PROOF.map((s) => (
               <div key={s.l} style={{ background: 'var(--card)', padding: '22px 8px', textAlign: 'center' }}>
@@ -100,7 +100,7 @@ export default function Home() {
             ))}
           </div>
           <p style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center', margin: '12px 0 0' }}>
-            11세 사업가 온이의 차량광고 프로젝트가 <strong style={{ color: 'var(--ink-soft)' }}>3,300만원</strong> 수주로 이어졌습니다.
+            11세 사업가 해리보의 차량광고 프로젝트가 <strong style={{ color: 'var(--ink-soft)' }}>3,300만원</strong> 수주로 이어졌습니다.
           </p>
         </section>
 
@@ -108,9 +108,9 @@ export default function Home() {
         <section style={{ marginTop: 60 }}>
           <div style={sectionTag}>왜 HE:A:GENCY인가</div>
           <h2 className="ag-serif" style={{ fontSize: 25, fontWeight: 900, lineHeight: 1.4, margin: '12px 0 0' }}>
-            교육만 하고 끝나지
+            포트폴리오만 쌓다
             <br />
-            않습니다.
+            끝나지 않습니다.
           </h2>
           <div style={{ display: 'grid', gap: 14, marginTop: 22 }}>
             {EDGES.map((e, i) => (

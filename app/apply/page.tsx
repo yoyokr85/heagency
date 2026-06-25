@@ -62,7 +62,7 @@ export default function ApplyPage() {
             <span style={{ color: 'var(--clay)' }}>광고로 수익</span> 내요.
           </h1>
           <p style={{ fontSize: 15.5, color: 'var(--ink-soft)', margin: '20px auto 0', maxWidth: 480 }}>
-            HE:A:GENCY는 교육에 그치지 않고 <strong style={{ color: 'var(--ink)' }}>실제 광고주를 물어다</strong> 줍니다.
+            HE:A:GENCY는 <strong style={{ color: 'var(--ink)' }}>실제 광고주를 물어다</strong> 줍니다.
             팔로워·경력 무관, 누구나 지원하세요. 포트폴리오를 함께 쌓고(구축 단계 건당 1만원) 광고 매칭 시 건별로 정산받습니다.
           </p>
         </section>
