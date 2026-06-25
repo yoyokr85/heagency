@@ -43,8 +43,10 @@ try {
   }
   console.log(`[migrate] 완료 — 신규 ${applied}건 / 전체 ${files.length}건`);
 } catch (e) {
-  console.error(`[migrate] 연결/실행 오류: ${e.message}`);
-  process.exit(1);
+  // 연결/인증 실패는 빌드를 막지 않음(마이그레이션은 별도로 적용 가능). 경고만.
+  // 실제 마이그레이션 SQL 실패는 위 inner catch 에서 exit 1 로 중단됨.
+  console.warn(`[migrate] 연결 건너뜀(경고): ${e.message}`);
+  process.exit(0);
 } finally {
   await client.end().catch(() => {});
 }
