@@ -42,3 +42,13 @@ export function isQuietHoursKst(): boolean {
   const kstHour = (new Date().getUTCHours() + 9) % 24
   return kstHour >= 22 || kstHour < 8
 }
+
+/** 관리자 알림 SMS — ADMIN_NOTIFY_PHONE(쉼표 구분 다중 가능)로 발송. 미설정 시 무동작. */
+export async function notifyAdmins(text: string): Promise<void> {
+  const phones = (process.env.ADMIN_NOTIFY_PHONE || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (!phones.length) return
+  await Promise.all(phones.map((p) => sendInfoSms(p, text).catch(() => {})))
+}

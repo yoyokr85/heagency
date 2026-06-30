@@ -35,3 +35,16 @@ export function buildApplicationReceivedSms(name: string): string {
     '포트폴리오 검토 후 순차적으로 연락드리겠습니다.',
   ].join('\n')
 }
+
+/** 새 전문가 지원 시 관리자에게 보내는 알림 SMS. */
+export function buildAdminApplyAlertSms(
+  name: string,
+  role: string,
+  adminUrl: string,
+): string {
+  return [
+    '[HE:A:GENCY] 새 전문가 지원 도착',
+    `${name}님${role ? ` · ${role}` : ''}`,
+    `어드민에서 확인: ${adminUrl}`,
+  ].join('\n')
+}

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SERVICE_TYPES, DOMAINS, EXPERT_ROLES, sanitizeList } from '../../../lib/taxonomy'
 import { supabaseAdmin } from '../../../lib/supabase'
-import { sendInfoSms } from '../../../lib/solapi'
-import { buildApplicationReceivedSms } from '../../../lib/notify'
+import { sendInfoSms, notifyAdmins } from '../../../lib/solapi'
+import { buildApplicationReceivedSms, buildAdminApplyAlertSms } from '../../../lib/notify'
 import { isValidRegion } from '../../../lib/regions'
+import { SITE_URL } from '../../../lib/site'
 
 function cleanRegions(v: unknown): string[] {
   if (!Array.isArray(v)) return []
@@ -70,8 +71,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'db error' }, { status: 500 })
   }
 
-  // 지원 접수 안내 SMS (실패해도 접수는 유지)
+  // 지원 접수 안내 SMS(지원자) + 관리자 알림 (실패해도 접수는 유지)
   sendInfoSms(phone, buildApplicationReceivedSms(name)).catch(() => {})
+  notifyAdmins(buildAdminApplyAlertSms(name, role, `${SITE_URL}/admin`)).catch(() => {})
 
   return NextResponse.json({ ok: true })
 }
